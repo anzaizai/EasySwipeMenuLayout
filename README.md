@@ -1,14 +1,60 @@
 # EasySwipeMenuLayout
 A sliding menu library not just for recyclerview, but all views.
-
-# 效果图
+# Effect picture
 ![EasySwipeMenuLayout.gif](http://upload-images.jianshu.io/upload_images/1811893-e1aa5b2f36f1caf5.gif?imageMogr2/auto-orient/strip)
 
-# 特性
-- 1、随心所欲的双向滑动
-- 2、id绑定，更加自由
-# 使用步骤
-## 1、在布局文件中添加菜单布局，通过id绑定
+# Recommended
+
+- Recommended in conjunction with BaseRecyclerViewAdapterHelper
+
+# Feature
+
+- 1、Two-way sliding
+- 2、Support any View
+- 3、By id binding layout, more freedom
+
+# How to use
+## Step 1
+
+- You need to add jitpack repository infomaition to build.gradle in your project.
+        
+        // Top-level build file where you can add configuration options common to all sub-projects/modules.
+        buildscript {
+            repositories {
+                jcenter()
+            }
+            dependencies {
+                classpath 'com.android.tools.build:gradle:2.2.0'
+        
+                // NOTE: Do not place your application dependencies here; they belong
+                // in the individual module build.gradle files
+            }
+        }
+        
+        allprojects {
+            repositories {
+                jcenter()
+                maven { url "https://jitpack.io" }
+        
+            }
+        }
+        
+        task clean(type: Delete) {
+            delete rootProject.buildDir
+        }
+
+## step 2
+
+- You need to add library dependencies infomation to build.gradle in your module.
+
+      compile 'com.github.anzaizai:EasyRefreshLayout:1.1.6'
+
+- last releases version is 1.0.0 can be use
+
+## step 3
+- User EasySwipeMenuLayout as the top-level root layout the needs to be added slide swipe menu the funcation views.
+ 
+### such as
             <com.guanaj.easyswipemenulibrary.EasySwipeMenuLayout
                       android:layout_width="match_parent"
                       android:layout_height="wrap_content"
@@ -61,7 +107,7 @@ A sliding menu library not just for recyclerview, but all views.
                           </LinearLayout>
                     </com.guanaj.easyswipemenulibrary.EasySwipeMenuLayout>
 
-- yes，只有一步，只需一步 
-# 传送门
+- yes，just one step,use it is so simple
+# Portal
 - 想要阅读源码的小伙伴可以点击我的博客，在博客里简略分析了构建的思路我实现过程
 - 个人博客：[http://www.cherylgood.cn](http://www.cherylgood.cn/)
