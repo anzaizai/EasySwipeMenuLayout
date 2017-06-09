@@ -418,6 +418,16 @@ public class EasySwipeMenuLayout extends ViewGroup {
         // Log.i(TAG, ">>>>>>>>onAttachedToWindow");
     }
 
+    public void resetStatus() {
+        if (mViewCache != null) {
+            if (mStateCache != null && mStateCache != State.CLOSE && mScroller != null) {
+                mScroller.startScroll(mViewCache.getScrollX(), 0, -mViewCache.getScrollX(), 0);
+                mViewCache = null;
+                mStateCache = null;
+            }
+        }
+    }
+
 
     public float getFraction() {
         return mFraction;
