@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
+import com.guanaj.easyswipemenulibrary.EasySwipeMenuLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,11 +66,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void convert(BaseViewHolder helper, String item) {
+        protected void convert(final BaseViewHolder helper, String item) {
             helper.getView(R.id.right_menu_2).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Toast.makeText(MainActivity.this, "收藏", Toast.LENGTH_SHORT).show();
+                    EasySwipeMenuLayout easySwipeMenuLayout = helper.getView(R.id.es);
+                    easySwipeMenuLayout.resetStatus();
                 }
             });
 
