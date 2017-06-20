@@ -279,8 +279,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
                 if (getScrollX() < 0) {
                     if (!mCanRightSwipe || mLeftView == null) {
                         scrollTo(0, 0);
-                    }
-                    {//左滑
+                    } else {//左滑
                         if (getScrollX() < mLeftView.getLeft()) {
                             scrollTo(mLeftView.getLeft(), 0);
                         }
