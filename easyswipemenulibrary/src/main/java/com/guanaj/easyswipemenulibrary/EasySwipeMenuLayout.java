@@ -254,7 +254,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
                     if (mViewCache != this) {
                         mViewCache.handlerSwipeMenu(State.CLOSE);
                     }
-                    Log.i(TAG, ">>>有菜单被打开");
+                   // Log.i(TAG, ">>>有菜单被打开");
 
                     getParent().requestDisallowInterceptTouchEvent(true);
                 }
@@ -271,7 +271,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
                 }
                 //当处于水平滑动时，禁止父类拦截
                 if (Math.abs(distanceX) > mScaledTouchSlop * 2 || Math.abs(getScrollX()) > mScaledTouchSlop * 2) {
-                    Log.i(TAG, ">>>>当处于水平滑动时，禁止父类拦截 true");
+                    //  Log.i(TAG, ">>>>当处于水平滑动时，禁止父类拦截 true");
                     getParent().requestDisallowInterceptTouchEvent(true);
 
                     scrollBy((int) (distanceX), 0);//滑动使用scrollBy
@@ -338,7 +338,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
                 float distance = mFirstP.x - event.getRawX();
                 if (Math.abs(distance) > mScaledTouchSlop) {
                     // 当手指拖动值大于mScaledTouchSlop值时，认为应该进行滚动，拦截子控件的事件
-                    Log.i(TAG, ">>>>onInterceptTouchEvent true");
+                    //Log.i(TAG, ">>>>onInterceptTouchEvent true");
                     return true;
                 }
                 break;
