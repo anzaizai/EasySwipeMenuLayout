@@ -103,7 +103,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         //获取childView的个数
-
+        setClickable(true);
         int count = getChildCount();
         //参考frameLayout测量代码
         final boolean measureMatchParentChildren =
@@ -241,7 +241,6 @@ public class EasySwipeMenuLayout extends ViewGroup {
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN: {
                 //   System.out.println(">>>>dispatchTouchEvent() ACTION_DOWN");
-
                 isSwipeing = false;
                 if (mLastP == null) {
                     mLastP = new PointF();
@@ -254,16 +253,17 @@ public class EasySwipeMenuLayout extends ViewGroup {
                 if (mViewCache != null) {
                     if (mViewCache != this) {
                         mViewCache.handlerSwipeMenu(State.CLOSE);
-
                     }
-//                    getParent().requestDisallowInterceptTouchEvent(true);
+                    Log.i(TAG, ">>>有菜单被打开");
+
+                    getParent().requestDisallowInterceptTouchEvent(true);
                 }
 
                 break;
             }
             case MotionEvent.ACTION_MOVE: {
                 // System.out.println(">>>>dispatchTouchEvent() ACTION_MOVE getScrollX:" + getScrollX());
-                isSwipeing = true;
+
                 float distanceX = mLastP.x - ev.getRawX();
                 float distanceY = mLastP.y - ev.getRawY();
                 if (Math.abs(distanceY) > mScaledTouchSlop * 2) {
@@ -271,30 +271,31 @@ public class EasySwipeMenuLayout extends ViewGroup {
                 }
                 //当处于水平滑动时，禁止父类拦截
                 if (Math.abs(distanceX) > mScaledTouchSlop * 2 || Math.abs(getScrollX()) > mScaledTouchSlop * 2) {
-                    requestDisallowInterceptTouchEvent(true);
-                }
-                scrollBy((int) (distanceX), 0);//滑动使用scrollBy
+                    Log.i(TAG, ">>>>当处于水平滑动时，禁止父类拦截 true");
+                    getParent().requestDisallowInterceptTouchEvent(true);
 
-                //越界修正
-                if (getScrollX() < 0) {
-                    if (!mCanRightSwipe || mLeftView == null) {
-                        scrollTo(0, 0);
-                    } else {//左滑
-                        if (getScrollX() < mLeftView.getLeft()) {
-                            scrollTo(mLeftView.getLeft(), 0);
+                    scrollBy((int) (distanceX), 0);//滑动使用scrollBy
+
+                    //越界修正
+                    if (getScrollX() < 0) {
+                        if (!mCanRightSwipe || mLeftView == null) {
+                            scrollTo(0, 0);
+                        } else {//左滑
+                            if (getScrollX() < mLeftView.getLeft()) {
+                                scrollTo(mLeftView.getLeft(), 0);
+                            }
+
                         }
-
-                    }
-                } else if (getScrollX() > 0) {
-                    if (!mCanLeftSwipe || mRightView == null) {
-                        scrollTo(0, 0);
-                    } else {
-                        if (getScrollX() > mRightView.getRight() - mContentView.getRight() - mContentViewLp.rightMargin) {
-                            scrollTo(mRightView.getRight() - mContentView.getRight() - mContentViewLp.rightMargin, 0);
+                    } else if (getScrollX() > 0) {
+                        if (!mCanLeftSwipe || mRightView == null) {
+                            scrollTo(0, 0);
+                        } else {
+                            if (getScrollX() > mRightView.getRight() - mContentView.getRight() - mContentViewLp.rightMargin) {
+                                scrollTo(mRightView.getRight() - mContentView.getRight() - mContentViewLp.rightMargin, 0);
+                            }
                         }
                     }
                 }
-
                 mLastP.set(ev.getRawX(), ev.getRawY());
 
                 break;
@@ -302,8 +303,16 @@ public class EasySwipeMenuLayout extends ViewGroup {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL: {
                 //    System.out.println(">>>>dispatchTouchEvent() ACTION_CANCEL OR ACTION_UP");
+                float distanceX = mLastP.x - ev.getRawX();
+                if (Math.abs(distanceX) > mScaledTouchSlop * 2) {
+                    isSwipeing = true;
+                }
+
+
                 State result = isShouldOpen(getScrollX());
                 handlerSwipeMenu(result);
+
+
                 break;
             }
             default: {
@@ -315,6 +324,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
 
     }
 
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
         // Log.d(TAG, "dispatchTouchEvent() called with: " + "ev = [" + event + "]");
@@ -324,14 +334,20 @@ public class EasySwipeMenuLayout extends ViewGroup {
                 break;
             }
             case MotionEvent.ACTION_MOVE: {
-                //对左边界进行处理
-                float distance = mLastP.x - event.getRawX();
+                //滑动时拦截点击时间
+                float distance = mFirstP.x - event.getRawX();
                 if (Math.abs(distance) > mScaledTouchSlop) {
                     // 当手指拖动值大于mScaledTouchSlop值时，认为应该进行滚动，拦截子控件的事件
+                    Log.i(TAG, ">>>>onInterceptTouchEvent true");
                     return true;
                 }
                 break;
 
+            }
+            case MotionEvent.ACTION_UP: {
+                if (isSwipeing) {
+                    return true;
+                }
             }
 
         }

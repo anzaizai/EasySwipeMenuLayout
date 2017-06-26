@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         myAdapter = new MyAdapter(R.layout.item_rv_swipemenu, null);
         recyclerView.setAdapter(myAdapter);
         inflater = getLayoutInflater();
+
     }
 
     private void initIEvent() {
@@ -67,12 +68,21 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void convert(final BaseViewHolder helper, String item) {
+
             helper.getView(R.id.right_menu_2).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Toast.makeText(MainActivity.this, "收藏", Toast.LENGTH_SHORT).show();
                     EasySwipeMenuLayout easySwipeMenuLayout = helper.getView(R.id.es);
+
                     easySwipeMenuLayout.resetStatus();
+                }
+            });
+            helper.getView(R.id.content).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(MainActivity.this, "setOnItemChildClickListener", Toast.LENGTH_SHORT).show();
+
                 }
             });
 
