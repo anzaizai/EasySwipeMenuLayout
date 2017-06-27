@@ -45,11 +45,13 @@ A sliding menu library not just for recyclerview, but all views.
 
 ## step 2
 
+[![](https://jitpack.io/v/anzaizai/EasySwipeMenuLayout.svg)](https://jitpack.io/#anzaizai/EasySwipeMenuLayout)
+
 - You need to add library dependencies infomation to build.gradle in your module.
 
-      compile 'com.github.anzaizai:EasySwipeMenuLayout:1.0.5'
+      compile 'com.github.anzaizai:EasySwipeMenuLayout:1.0.6'
 
-- last releases version is 1.0.5 can be use
+- last releases version is 1.0.6 can be use
 
 ## step 3
 - User EasySwipeMenuLayout as the top-level root layout the needs to be added slide swipe menu the funcation views.

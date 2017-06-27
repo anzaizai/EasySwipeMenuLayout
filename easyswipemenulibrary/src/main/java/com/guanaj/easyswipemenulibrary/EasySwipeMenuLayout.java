@@ -335,7 +335,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
             }
             case MotionEvent.ACTION_MOVE: {
                 //滑动时拦截点击时间
-                float distance = mFirstP.x - event.getRawX();
+                float distance = mLastP.x - event.getRawX();
                 if (Math.abs(distance) > mScaledTouchSlop) {
                     // 当手指拖动值大于mScaledTouchSlop值时，认为应该进行滚动，拦截子控件的事件
                     //Log.i(TAG, ">>>>onInterceptTouchEvent true");
