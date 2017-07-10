@@ -27,9 +27,9 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha9'
     testCompile 'junit:junit:4.12'
-    compile 'com.github.anzaizai:EasySwipeMenuLayout:1.0.6'
+   // compile 'com.github.anzaizai:EasySwipeMenuLayout:1.0.6'
 
-//    compile project(':easyswipemenulibrary')
+    compile project(':easyswipemenulibrary')
     compile 'com.android.support:recyclerview-v7:25.+'
     compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.18'
 

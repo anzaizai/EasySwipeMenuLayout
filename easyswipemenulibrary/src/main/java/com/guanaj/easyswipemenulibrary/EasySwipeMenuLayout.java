@@ -41,6 +41,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
     private Scroller mScroller;
     private static EasySwipeMenuLayout mViewCache;
     private static State mStateCache;
+    private float distanceX;
 
     public EasySwipeMenuLayout(Context context) {
         this(context, null);
@@ -254,8 +255,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
                     if (mViewCache != this) {
                         mViewCache.handlerSwipeMenu(State.CLOSE);
                     }
-                   // Log.i(TAG, ">>>有菜单被打开");
-
+                    // Log.i(TAG, ">>>有菜单被打开");
                     getParent().requestDisallowInterceptTouchEvent(true);
                 }
 
@@ -264,37 +264,37 @@ public class EasySwipeMenuLayout extends ViewGroup {
             case MotionEvent.ACTION_MOVE: {
                 // System.out.println(">>>>dispatchTouchEvent() ACTION_MOVE getScrollX:" + getScrollX());
 
-                float distanceX = mLastP.x - ev.getRawX();
+                distanceX = mLastP.x - ev.getRawX();
                 float distanceY = mLastP.y - ev.getRawY();
                 if (Math.abs(distanceY) > mScaledTouchSlop * 2) {
                     break;
                 }
-                //当处于水平滑动时，禁止父类拦截
-                if (Math.abs(distanceX) > mScaledTouchSlop * 2 || Math.abs(getScrollX()) > mScaledTouchSlop * 2) {
-                    //  Log.i(TAG, ">>>>当处于水平滑动时，禁止父类拦截 true");
-                    getParent().requestDisallowInterceptTouchEvent(true);
+               // Log.i(TAG, ">>>>>distanceX:" + distanceX);
 
-                    scrollBy((int) (distanceX), 0);//滑动使用scrollBy
-
-                    //越界修正
-                    if (getScrollX() < 0) {
-                        if (!mCanRightSwipe || mLeftView == null) {
-                            scrollTo(0, 0);
-                        } else {//左滑
-                            if (getScrollX() < mLeftView.getLeft()) {
-                                scrollTo(mLeftView.getLeft(), 0);
-                            }
-
+                scrollBy((int) (distanceX), 0);//滑动使用scrollBy
+                //越界修正
+                if (getScrollX() < 0) {
+                    if (!mCanRightSwipe || mLeftView == null) {
+                        scrollTo(0, 0);
+                    } else {//左滑
+                        if (getScrollX() < mLeftView.getLeft()) {
+                            scrollTo(mLeftView.getLeft(), 0);
                         }
-                    } else if (getScrollX() > 0) {
-                        if (!mCanLeftSwipe || mRightView == null) {
-                            scrollTo(0, 0);
-                        } else {
-                            if (getScrollX() > mRightView.getRight() - mContentView.getRight() - mContentViewLp.rightMargin) {
-                                scrollTo(mRightView.getRight() - mContentView.getRight() - mContentViewLp.rightMargin, 0);
-                            }
+
+                    }
+                } else if (getScrollX() > 0) {
+                    if (!mCanLeftSwipe || mRightView == null) {
+                        scrollTo(0, 0);
+                    } else {
+                        if (getScrollX() > mRightView.getRight() - mContentView.getRight() - mContentViewLp.rightMargin) {
+                            scrollTo(mRightView.getRight() - mContentView.getRight() - mContentViewLp.rightMargin, 0);
                         }
                     }
+                }
+                //当处于水平滑动时，禁止父类拦截
+                if (Math.abs(distanceX) > mScaledTouchSlop || Math.abs(getScrollX()) > mScaledTouchSlop) {
+                    //  Log.i(TAG, ">>>>当处于水平滑动时，禁止父类拦截 true");
+                    getParent().requestDisallowInterceptTouchEvent(true);
                 }
                 mLastP.set(ev.getRawX(), ev.getRawY());
 
@@ -335,10 +335,12 @@ public class EasySwipeMenuLayout extends ViewGroup {
             }
             case MotionEvent.ACTION_MOVE: {
                 //滑动时拦截点击时间
-                float distance = mLastP.x - event.getRawX();
-                if (Math.abs(distance) > mScaledTouchSlop) {
+                if (Math.abs(distanceX) > mScaledTouchSlop) {
                     // 当手指拖动值大于mScaledTouchSlop值时，认为应该进行滚动，拦截子控件的事件
                     //Log.i(TAG, ">>>>onInterceptTouchEvent true");
+                    return true;
+                }
+                if (Math.abs(distanceX) > mScaledTouchSlop || Math.abs(getScrollX()) > mScaledTouchSlop) {
                     return true;
                 }
                 break;
