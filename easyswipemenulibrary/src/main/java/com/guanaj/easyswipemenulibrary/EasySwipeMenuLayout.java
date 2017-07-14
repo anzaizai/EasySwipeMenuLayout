@@ -244,7 +244,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN: {
                 result = null;
-                //   System.out.println(">>>>dispatchTouchEvent() ACTION_DOWN");
+                   System.out.println(">>>>dispatchTouchEvent() ACTION_DOWN");
                 isSwipeing = false;
                 if (mLastP == null) {
                     mLastP = new PointF();
@@ -265,7 +265,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
                 break;
             }
             case MotionEvent.ACTION_MOVE: {
-                // System.out.println(">>>>dispatchTouchEvent() ACTION_MOVE getScrollX:" + getScrollX());
+                 System.out.println(">>>>dispatchTouchEvent() ACTION_MOVE getScrollX:" + getScrollX());
                 distanceX = mLastP.x - ev.getRawX();
                 float distanceY = mLastP.y - ev.getRawY();
                 if (Math.abs(distanceY) > Math.abs(distanceX)) {
@@ -302,10 +302,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
                     getParent().requestDisallowInterceptTouchEvent(true);
                 }
                 mLastP.set(ev.getRawX(), ev.getRawY());
-//                if (result == null) {
-//                    result = isShouldOpen();
-//                    Log.d(TAG, "result: " + result);
-//                }
+
 
                 break;
             }
@@ -316,8 +313,8 @@ public class EasySwipeMenuLayout extends ViewGroup {
                 if (Math.abs(distanceX) > mScaledTouchSlop) {
                     isSwipeing = true;
                 }
-                    result = isShouldOpen();
-                    handlerSwipeMenu(result);
+                result = isShouldOpen(getScrollX());
+                handlerSwipeMenu(result);
 
 
                 break;
@@ -334,7 +331,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        // Log.d(TAG, "dispatchTouchEvent() called with: " + "ev = [" + event + "]");
+         Log.d(TAG, "dispatchTouchEvent() called with: " + "ev = [" + event + "]");
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN: {
                 break;
@@ -346,11 +343,17 @@ public class EasySwipeMenuLayout extends ViewGroup {
                     //Log.i(TAG, ">>>>onInterceptTouchEvent true");
                     return true;
                 }
+                if (Math.abs(distanceX) > mScaledTouchSlop || Math.abs(getScrollX()) > mScaledTouchSlop) {
+                    Log.d(TAG, "onInterceptTouchEvent: 2");
+                    return true;
+                }
                 break;
 
             }
-            case MotionEvent.ACTION_UP: {
-                if (isSwipeing) {
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL: {
+                //滑动后不触发contentView的点击事件
+                if (isSwipeing){
                     return true;
                 }
             }
@@ -364,6 +367,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
      *
      * @param result
      */
+
     private void handlerSwipeMenu(State result) {
         if (result == State.LEFTOPEN) {
             mScroller.startScroll(getScrollX(), 0, mLeftView.getLeft() - getScrollX(), 0);
@@ -398,25 +402,31 @@ public class EasySwipeMenuLayout extends ViewGroup {
      * 根据当前的scrollX的值判断松开手后应处于何种状态
      *
      * @param
+     * @param scrollX
      * @return
      */
-    private State isShouldOpen() {
-        if (distanceX < 0 && mLeftView != null) {
-            if (mScaledTouchSlop < Math.abs(distanceX)) {
+    private State isShouldOpen(int scrollX) {
+        if (!(mScaledTouchSlop < Math.abs(scrollX))) {
+            return null;
+        }
+        if (scrollX < 0) {
+            //从左向右滑了
+            if (mLeftView != null && mStateCache == null || mStateCache != State.LEFTOPEN) {
                 return State.LEFTOPEN;
             }
 
-        } else if (distanceX > 0 && mRightView != null) {
-            if (mScaledTouchSlop < Math.abs(distanceX)) {
-                return State.RIGHTOPEN;
-            }
-
-        } else if (distanceX < 0 && mRightView != null) {
-            if (mScaledTouchSlop < Math.abs(distanceX)) {
+            if (mRightView != null && mStateCache == null && mStateCache == State.RIGHTOPEN) {
+                //想关闭右边测单
                 return State.CLOSE;
             }
-        } else if (distanceX > 0 && mLeftView != null) {
-            if (mScaledTouchSlop < Math.abs(distanceX)) {
+
+        } else if (scrollX > 0) {
+            //从右往左滑
+            if (mRightView != null && mStateCache == null || mStateCache != State.RIGHTOPEN) {
+                return State.RIGHTOPEN;
+            }
+            if (mLeftView != null && mStateCache == null && mStateCache == State.LEFTOPEN) {
+                //想关闭左边测单
                 return State.CLOSE;
             }
         }

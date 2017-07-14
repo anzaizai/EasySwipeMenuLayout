@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "收藏", Toast.LENGTH_SHORT).show();
                     EasySwipeMenuLayout easySwipeMenuLayout = helper.getView(R.id.es);
 
-                    easySwipeMenuLayout.resetStatus();
+//                    easySwipeMenuLayout.resetStatus();
                 }
             });
             helper.getView(R.id.content).setOnClickListener(new View.OnClickListener() {
