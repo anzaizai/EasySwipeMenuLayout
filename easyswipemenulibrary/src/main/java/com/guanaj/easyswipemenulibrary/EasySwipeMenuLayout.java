@@ -304,7 +304,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
             case MotionEvent.ACTION_CANCEL: {
                 //    System.out.println(">>>>dispatchTouchEvent() ACTION_CANCEL OR ACTION_UP");
                 float distanceX = mLastP.x - ev.getRawX();
-                if (Math.abs(distanceX) > mScaledTouchSlop * 2) {
+                if (Math.abs(distanceX) > mScaledTouchSlop ) {
                     isSwipeing = true;
                 }
 
