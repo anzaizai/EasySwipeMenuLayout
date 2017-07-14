@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
             helper.getView(R.id.content).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(MainActivity.this, "setOnItemChildClickListener", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "setOnClickListener", Toast.LENGTH_SHORT).show();
 
                 }
             });

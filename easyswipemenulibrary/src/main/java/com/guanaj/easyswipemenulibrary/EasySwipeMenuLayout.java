@@ -1,6 +1,5 @@
 package com.guanaj.easyswipemenulibrary;
 
-import android.view.ViewGroup;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.PointF;
@@ -9,11 +8,13 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.Scroller;
 
-
 import java.util.ArrayList;
+
+import static com.guanaj.easyswipemenulibrary.State.CLOSE;
 
 /**
  * Created by guanaj on 2017/6/5.
@@ -31,10 +32,9 @@ public class EasySwipeMenuLayout extends ViewGroup {
     private View mContentView;
     private MarginLayoutParams mContentViewLp;
     private boolean isSwipeing;
-    private boolean isTouched;
     private PointF mLastP;
     private PointF mFirstP;
-    private float mFraction = 0.5f;
+    private float mFraction = 0.3f;
     private boolean mCanLeftSwipe = true;
     private boolean mCanRightSwipe = true;
     private int mScaledTouchSlop;
@@ -42,6 +42,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
     private static EasySwipeMenuLayout mViewCache;
     private static State mStateCache;
     private float distanceX;
+    private float finalyDistanceX;
 
     public EasySwipeMenuLayout(Context context) {
         this(context, null);
@@ -237,11 +238,13 @@ public class EasySwipeMenuLayout extends ViewGroup {
 
     }
 
+    State result;
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN: {
-                //   System.out.println(">>>>dispatchTouchEvent() ACTION_DOWN");
+                System.out.println(">>>>dispatchTouchEvent() ACTION_DOWN");
                 isSwipeing = false;
                 if (mLastP == null) {
                     mLastP = new PointF();
@@ -253,7 +256,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
                 mFirstP.set(ev.getRawX(), ev.getRawY());
                 if (mViewCache != null) {
                     if (mViewCache != this) {
-                        mViewCache.handlerSwipeMenu(State.CLOSE);
+                        mViewCache.handlerSwipeMenu(CLOSE);
                     }
                     // Log.i(TAG, ">>>有菜单被打开");
                     getParent().requestDisallowInterceptTouchEvent(true);
@@ -262,14 +265,13 @@ public class EasySwipeMenuLayout extends ViewGroup {
                 break;
             }
             case MotionEvent.ACTION_MOVE: {
-                // System.out.println(">>>>dispatchTouchEvent() ACTION_MOVE getScrollX:" + getScrollX());
-
-                distanceX = mLastP.x - ev.getRawX();
+                System.out.println(">>>>dispatchTouchEvent() ACTION_MOVE getScrollX:" + getScrollX());
+                float distanceX = mLastP.x - ev.getRawX();
                 float distanceY = mLastP.y - ev.getRawY();
-                if (Math.abs(distanceY) > mScaledTouchSlop * 2) {
+                if (Math.abs(distanceY) > Math.abs(distanceX)) {
                     break;
                 }
-               // Log.i(TAG, ">>>>>distanceX:" + distanceX);
+                // Log.i(TAG, ">>>>>distanceX:" + distanceX);
 
                 scrollBy((int) (distanceX), 0);//滑动使用scrollBy
                 //越界修正
@@ -278,6 +280,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
                         scrollTo(0, 0);
                     } else {//左滑
                         if (getScrollX() < mLeftView.getLeft()) {
+
                             scrollTo(mLeftView.getLeft(), 0);
                         }
 
@@ -292,24 +295,27 @@ public class EasySwipeMenuLayout extends ViewGroup {
                     }
                 }
                 //当处于水平滑动时，禁止父类拦截
-                if (Math.abs(distanceX) > mScaledTouchSlop || Math.abs(getScrollX()) > mScaledTouchSlop) {
+                if (Math.abs(distanceX) > mScaledTouchSlop
+//                        || Math.abs(getScrollX()) > mScaledTouchSlop
+                        ) {
                     //  Log.i(TAG, ">>>>当处于水平滑动时，禁止父类拦截 true");
                     getParent().requestDisallowInterceptTouchEvent(true);
                 }
                 mLastP.set(ev.getRawX(), ev.getRawY());
+
 
                 break;
             }
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL: {
                 //    System.out.println(">>>>dispatchTouchEvent() ACTION_CANCEL OR ACTION_UP");
-                float distanceX = mLastP.x - ev.getRawX();
-                if (Math.abs(distanceX) > mScaledTouchSlop ) {
+
+                finalyDistanceX = mFirstP.x - ev.getRawX();
+                if (Math.abs(finalyDistanceX) > mScaledTouchSlop) {
+
                     isSwipeing = true;
                 }
-
-
-                State result = isShouldOpen(getScrollX());
+                result = isShouldOpen(getScrollX());
                 handlerSwipeMenu(result);
 
 
@@ -327,26 +333,28 @@ public class EasySwipeMenuLayout extends ViewGroup {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        // Log.d(TAG, "dispatchTouchEvent() called with: " + "ev = [" + event + "]");
-
+        Log.d(TAG, "dispatchTouchEvent() called with: " + "ev = [" + event + "]");
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN: {
                 break;
             }
             case MotionEvent.ACTION_MOVE: {
                 //滑动时拦截点击时间
-                if (Math.abs(distanceX) > mScaledTouchSlop) {
+                if (Math.abs(finalyDistanceX) > mScaledTouchSlop) {
                     // 当手指拖动值大于mScaledTouchSlop值时，认为应该进行滚动，拦截子控件的事件
                     //Log.i(TAG, ">>>>onInterceptTouchEvent true");
                     return true;
                 }
-                if (Math.abs(distanceX) > mScaledTouchSlop || Math.abs(getScrollX()) > mScaledTouchSlop) {
-                    return true;
-                }
+//                if (Math.abs(finalyDistanceX) > mScaledTouchSlop || Math.abs(getScrollX()) > mScaledTouchSlop) {
+//                    Log.d(TAG, "onInterceptTouchEvent: 2");
+//                    return true;
+//                }
                 break;
 
             }
-            case MotionEvent.ACTION_UP: {
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL: {
+                //滑动后不触发contentView的点击事件
                 if (isSwipeing) {
                     return true;
                 }
@@ -361,6 +369,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
      *
      * @param result
      */
+
     private void handlerSwipeMenu(State result) {
         if (result == State.LEFTOPEN) {
             mScroller.startScroll(getScrollX(), 0, mLeftView.getLeft() - getScrollX(), 0);
@@ -394,32 +403,54 @@ public class EasySwipeMenuLayout extends ViewGroup {
     /**
      * 根据当前的scrollX的值判断松开手后应处于何种状态
      *
+     * @param
      * @param scrollX
      * @return
      */
     private State isShouldOpen(int scrollX) {
-        if (getScrollX() < 0 && mLeftView != null) {
-            //➡滑动
-            //获得leftView的测量长度
-            if (Math.abs(mLeftView.getWidth() * mFraction) < Math.abs(getScrollX())) {
-                return State.LEFTOPEN;
-            }
-
-        } else if (getScrollX() > 0 && mRightView != null) {
-            //⬅️滑动
-            if (Math.abs(mRightView.getWidth() * mFraction) < Math.abs(getScrollX())) {
-                return State.RIGHTOPEN;
-            }
-
+        if (!(mScaledTouchSlop < Math.abs(finalyDistanceX))) {
+            return mStateCache;
         }
+        Log.i(TAG, ">>>finalyDistanceX:" + finalyDistanceX);
+        if (finalyDistanceX < 0) {
+            //➡滑动
+            //1、展开左边按钮
+            //获得leftView的测量长度
+            if (getScrollX() < 0 && mLeftView != null) {
+                if (Math.abs(mLeftView.getWidth() * mFraction) < Math.abs(getScrollX())) {
+                    return State.LEFTOPEN;
+                }
+            }
+            //2、关闭右边按钮
+
+            if (getScrollX() > 0 && mRightView != null) {
+                return State.CLOSE;
+            }
+        } else if (finalyDistanceX > 0) {
+            //⬅️滑动
+            //3、开启右边菜单按钮
+            if (getScrollX() > 0 && mRightView != null) {
+
+                if (Math.abs(mRightView.getWidth() * mFraction) < Math.abs(getScrollX())) {
+                    return State.RIGHTOPEN;
+                }
+
+            }
+            //关闭左边
+            if (getScrollX() < 0 && mLeftView != null) {
+                return State.CLOSE;
+            }
+        }
+
         return State.CLOSE;
+
     }
 
 
     @Override
     protected void onDetachedFromWindow() {
         if (this == mViewCache) {
-            mViewCache.handlerSwipeMenu(State.CLOSE);
+            mViewCache.handlerSwipeMenu(CLOSE);
         }
         super.onDetachedFromWindow();
         //  Log.i(TAG, ">>>>>>>>onDetachedFromWindow");
@@ -437,7 +468,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
 
     public void resetStatus() {
         if (mViewCache != null) {
-            if (mStateCache != null && mStateCache != State.CLOSE && mScroller != null) {
+            if (mStateCache != null && mStateCache != CLOSE && mScroller != null) {
                 mScroller.startScroll(mViewCache.getScrollX(), 0, -mViewCache.getScrollX(), 0);
                 mViewCache.invalidate();
                 mViewCache = null;
@@ -478,6 +509,16 @@ public class EasySwipeMenuLayout extends ViewGroup {
 
     public static State getStateCache() {
         return mStateCache;
+    }
+
+    private boolean isLeftToRight() {
+        if (distanceX < 0) {
+            //➡滑动
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
 
