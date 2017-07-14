@@ -243,8 +243,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
     public boolean dispatchTouchEvent(MotionEvent ev) {
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN: {
-                result = null;
-                   System.out.println(">>>>dispatchTouchEvent() ACTION_DOWN");
+                System.out.println(">>>>dispatchTouchEvent() ACTION_DOWN");
                 isSwipeing = false;
                 if (mLastP == null) {
                     mLastP = new PointF();
@@ -265,7 +264,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
                 break;
             }
             case MotionEvent.ACTION_MOVE: {
-                 System.out.println(">>>>dispatchTouchEvent() ACTION_MOVE getScrollX:" + getScrollX());
+                System.out.println(">>>>dispatchTouchEvent() ACTION_MOVE getScrollX:" + getScrollX());
                 distanceX = mLastP.x - ev.getRawX();
                 float distanceY = mLastP.y - ev.getRawY();
                 if (Math.abs(distanceY) > Math.abs(distanceX)) {
@@ -309,7 +308,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL: {
                 //    System.out.println(">>>>dispatchTouchEvent() ACTION_CANCEL OR ACTION_UP");
-                float distanceX = mLastP.x - ev.getRawX();
+                float distanceX = mFirstP.x - ev.getRawX();
                 if (Math.abs(distanceX) > mScaledTouchSlop) {
                     isSwipeing = true;
                 }
@@ -331,7 +330,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-         Log.d(TAG, "dispatchTouchEvent() called with: " + "ev = [" + event + "]");
+        Log.d(TAG, "dispatchTouchEvent() called with: " + "ev = [" + event + "]");
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN: {
                 break;
@@ -353,7 +352,7 @@ public class EasySwipeMenuLayout extends ViewGroup {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL: {
                 //滑动后不触发contentView的点击事件
-                if (isSwipeing){
+                if (isSwipeing) {
                     return true;
                 }
             }
@@ -406,97 +405,115 @@ public class EasySwipeMenuLayout extends ViewGroup {
      * @return
      */
     private State isShouldOpen(int scrollX) {
-        if (!(mScaledTouchSlop < Math.abs(scrollX))) {
-            return null;
+        if (!(mScaledTouchSlop < Math.abs(distanceX))) {
+            return mStateCache;
         }
-        if (scrollX < 0) {
-            //从左向右滑了
-            if (mLeftView != null && mStateCache == null || mStateCache != State.LEFTOPEN) {
-                return State.LEFTOPEN;
-            }
 
-            if (mRightView != null && mStateCache == null && mStateCache == State.RIGHTOPEN) {
-                //想关闭右边测单
+        if (distanceX < 0 && mLeftView != null) {
+            if (getScrollX() < 0 && mLeftView != null) {
+                //➡滑动
+                //获得leftView的测量长度
+                -//            if (Math.abs(mLeftView.getWidth() * mFraction) < Math.abs(getScrollX())) {
+                if (mScaledTouchSlop < Math.abs(distanceX)) {
+                    return State.LEFTOPEN;
+                }
+
+            } else if (distanceX > 0 && mRightView != null) {
+                -//        } else if (getScrollX() > 0 && mRightView != null) {
+                        -            //⬅️滑动
+                                -//            if (Math.abs(mRightView.getWidth() * mFraction) < Math.abs(getScrollX())) {
+                if (mScaledTouchSlop < Math.abs(distanceX)) {
+                    return State.RIGHTOPEN;
+                }
+
+                if (scrollX < 0) {
+                    //从左向右滑了
+                    if (mLeftView != null && mStateCache == null || mStateCache != State.LEFTOPEN) {
+                        return State.LEFTOPEN;
+                    }
+
+//            if (mRightView != null && mStateCache != null && mStateCache == State.RIGHTOPEN) {
+//                //想关闭右边测单
+//                return State.CLOSE;
+//            }
+
+                } else if (scrollX > 0) {
+                    //从右往左滑
+                    if (mRightView != null && mStateCache == null || mStateCache != State.RIGHTOPEN) {
+                        return State.RIGHTOPEN;
+                    }
+//            if (mLeftView != null && mStateCache != null && mStateCache == State.LEFTOPEN) {
+//                //想关闭左边测单
+//                return State.CLOSE;
+//            }
+                }
                 return State.CLOSE;
             }
 
-        } else if (scrollX > 0) {
-            //从右往左滑
-            if (mRightView != null && mStateCache == null || mStateCache != State.RIGHTOPEN) {
-                return State.RIGHTOPEN;
+
+            @Override
+            protected void onDetachedFromWindow () {
+                if (this == mViewCache) {
+                    mViewCache.handlerSwipeMenu(CLOSE);
+                }
+                super.onDetachedFromWindow();
+                //  Log.i(TAG, ">>>>>>>>onDetachedFromWindow");
+
             }
-            if (mLeftView != null && mStateCache == null && mStateCache == State.LEFTOPEN) {
-                //想关闭左边测单
-                return State.CLOSE;
+
+            @Override
+            protected void onAttachedToWindow () {
+                super.onAttachedToWindow();
+                if (this == mViewCache) {
+                    mViewCache.handlerSwipeMenu(mStateCache);
+                }
+                // Log.i(TAG, ">>>>>>>>onAttachedToWindow");
             }
-        }
-        return null;
-    }
 
-
-    @Override
-    protected void onDetachedFromWindow() {
-        if (this == mViewCache) {
-            mViewCache.handlerSwipeMenu(CLOSE);
-        }
-        super.onDetachedFromWindow();
-        //  Log.i(TAG, ">>>>>>>>onDetachedFromWindow");
-
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        if (this == mViewCache) {
-            mViewCache.handlerSwipeMenu(mStateCache);
-        }
-        // Log.i(TAG, ">>>>>>>>onAttachedToWindow");
-    }
-
-    public void resetStatus() {
-        if (mViewCache != null) {
-            if (mStateCache != null && mStateCache != CLOSE && mScroller != null) {
-                mScroller.startScroll(mViewCache.getScrollX(), 0, -mViewCache.getScrollX(), 0);
-                mViewCache.invalidate();
-                mViewCache = null;
-                mStateCache = null;
+        public void resetStatus () {
+            if (mViewCache != null) {
+                if (mStateCache != null && mStateCache != CLOSE && mScroller != null) {
+                    mScroller.startScroll(mViewCache.getScrollX(), 0, -mViewCache.getScrollX(), 0);
+                    mViewCache.invalidate();
+                    mViewCache = null;
+                    mStateCache = null;
+                }
             }
         }
+
+
+        public float getFraction () {
+            return mFraction;
+        }
+
+        public void setFraction ( float mFraction){
+            this.mFraction = mFraction;
+        }
+
+        public boolean isCanLeftSwipe () {
+            return mCanLeftSwipe;
+        }
+
+        public void setCanLeftSwipe ( boolean mCanLeftSwipe){
+            this.mCanLeftSwipe = mCanLeftSwipe;
+        }
+
+        public boolean isCanRightSwipe () {
+            return mCanRightSwipe;
+        }
+
+        public void setCanRightSwipe ( boolean mCanRightSwipe){
+            this.mCanRightSwipe = mCanRightSwipe;
+        }
+
+        public static EasySwipeMenuLayout getViewCache () {
+            return mViewCache;
+        }
+
+
+        public static State getStateCache () {
+            return mStateCache;
+        }
+
+
     }
-
-
-    public float getFraction() {
-        return mFraction;
-    }
-
-    public void setFraction(float mFraction) {
-        this.mFraction = mFraction;
-    }
-
-    public boolean isCanLeftSwipe() {
-        return mCanLeftSwipe;
-    }
-
-    public void setCanLeftSwipe(boolean mCanLeftSwipe) {
-        this.mCanLeftSwipe = mCanLeftSwipe;
-    }
-
-    public boolean isCanRightSwipe() {
-        return mCanRightSwipe;
-    }
-
-    public void setCanRightSwipe(boolean mCanRightSwipe) {
-        this.mCanRightSwipe = mCanRightSwipe;
-    }
-
-    public static EasySwipeMenuLayout getViewCache() {
-        return mViewCache;
-    }
-
-
-    public static State getStateCache() {
-        return mStateCache;
-    }
-
-
-}
