@@ -302,10 +302,10 @@ public class EasySwipeMenuLayout extends ViewGroup {
                     getParent().requestDisallowInterceptTouchEvent(true);
                 }
                 mLastP.set(ev.getRawX(), ev.getRawY());
-                if (result == null) {
-                    result = isShouldOpen();
-                    Log.d(TAG, "result: " + result);
-                }
+//                if (result == null) {
+//                    result = isShouldOpen();
+//                    Log.d(TAG, "result: " + result);
+//                }
 
                 break;
             }
@@ -316,7 +316,8 @@ public class EasySwipeMenuLayout extends ViewGroup {
                 if (Math.abs(distanceX) > mScaledTouchSlop) {
                     isSwipeing = true;
                 }
-                handlerSwipeMenu(result);
+                    result = isShouldOpen();
+                    handlerSwipeMenu(result);
 
 
                 break;
