@@ -268,12 +268,12 @@ public class EasySwipeMenuLayout extends ViewGroup {
              //   System.out.println(">>>>dispatchTouchEvent() ACTION_MOVE getScrollX:" + getScrollX());
                 float distanceX = mLastP.x - ev.getRawX();
                 float distanceY = mLastP.y - ev.getRawY();
-                if (Math.abs(distanceY) > mScaledTouchSlop && Math.abs(distanceX) > mScaledTouchSlop && Math.abs(distanceY) > Math.abs(distanceX)) {
+                if (Math.abs(distanceY) > mScaledTouchSlop  && Math.abs(distanceY) > Math.abs(distanceX)) {
                     break;
                 }
-                if (Math.abs(distanceX) <= mScaledTouchSlop){
-                    break;
-                }
+//                if (Math.abs(distanceX) <= mScaledTouchSlop){
+//                    break;
+//                }
                 // Log.i(TAG, ">>>>>distanceX:" + distanceX);
 
                 scrollBy((int) (distanceX), 0);//滑动使用scrollBy
