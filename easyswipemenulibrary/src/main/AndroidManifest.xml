@@ -2,10 +2,7 @@
 
     package="com.guanaj.easyswipemenulibrary">
 
-    <application
-        android:allowBackup="true"
-        android:label="@string/app_name"
-        android:supportsRtl="true">
+    <application>
 
     </application>
 
